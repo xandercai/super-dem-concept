@@ -1,0 +1,51 @@
+# general
+result_dir: ./result
+verbose: True
+
+# task
+tasks:
+  - semseg
+num_classes: 12
+
+# dataset
+dataset_dir: ../datasets/DEM_NZ
+rgb_only: True
+mean:
+  - 0.02771085
+  - 0.03105706
+  - 0.021761
+  - 311.7378
+  - 46.2164077
+  - 0.62586078
+std:
+  - 0.03461628
+  - 0.03408366
+  - 0.02552561
+  - 314.13437
+  - 47.73058678
+  - 0.48741311
+
+# split
+train_set_name:
+  - Christchurch_Kaiapoi
+  - Kaikoura_Marlborough
+test_set_name:
+  - Christchurch_Akaroa
+
+# resample info
+resolution: 7.5
+sample_size: 300
+sample_scale: 200
+
+# model
+model_name: deeplabv3_resnet50
+init_random: False
+
+# optimizer
+optimizer: SGD
+scheduler: ConstantLR
+
+# training
+batch_size: 40
+epochs: 10
+lr: 0.1

@@ -1,0 +1,47 @@
+# YML file for setting up Python environment
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.10
+  - pytorch==2.0.0
+  - torchvision==0.15.0
+  - torchaudio=2.0.0
+  - pytorch-cuda=11.8
+  - torchgeo==0.4.1
+  - pip
+  - python-dotenv
+  - pyyaml 
+  - easydict 
+  - pyproj
+  - gdal
+  - pdal
+  - python-pdal
+  - geojson
+  - rtree
+  - fiona
+  - shapely
+  - geopandas
+  - rasterio
+  - xarray
+  - rioxarray
+  - matplotlib
+  - scikit-learn
+  - scikit-image
+  - imageio
+  - leafmap
+  - pyvista-xarray
+  - opencv
+  - termcolor
+  - eodag
+  - black
+  - pip:
+    - jupyterlab-geojson
+    - jupyterlab-vim
+    - jupyter-resource-usage
+    - jupyterlab_execute_time
+    - tensorboard
+    - matplotlib-scalebar
+prefix:
