@@ -28,9 +28,9 @@ def get_scheduler(optimizer, dataset, p):
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=p.lr,
-            steps_per_epoch=len(dataset) // p.batch_size,
+            steps_per_epoch=(len(dataset) * p.sample_scale // p.batch_size),
             epochs=p.epochs,
-            anneal_strategy="linear",
+            # anneal_strategy="linear",
         )
 
     if p.scheduler == "CosineAnnealingLR":

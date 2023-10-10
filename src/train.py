@@ -24,8 +24,8 @@ def train_loop(
     acc = []
     model.to(device)
     print(
-        f"Epoch: {0:02d}\tLR: {optimizer.defaults['lr']:7.5f}\tLoss: {0:7.5f}\tAccs={[f'{a:5.3f}' for a in [0.0] * len(acc_fns)]}\t"
-        f"Time: 0"
+        f"Epoch: {0:02d}\tLR: {scheduler.get_last_lr()[0]:7.5f}\tLoss: {0:7.5f}\t"
+        f"Accs={[f'{a:5.3f}' for a in [0.0] * len(acc_fns)]}\tTime: 0"
     )
     for epoch in range(epochs):
         epoch_start = datetime.now()
@@ -54,7 +54,10 @@ def train_loop(
             step_loss = float(loss / len(batch))
             accum_loss += step_loss
             if verbose:
-                print("\t", i, step_loss, datetime.now() - step_start)
+                print(
+                    f"\tEpoch: {epoch+1}\tStep: {i+1:02d}\tLR: {lr:7.5f}\tLoss: {step_loss:7.5f}\t"
+                    f"Time: {datetime.now() - step_start}"
+                )
 
         # Testing against the validation dataset
         if acc_fns is not None and val_dl is not None:

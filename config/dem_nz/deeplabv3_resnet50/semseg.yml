@@ -43,7 +43,9 @@ init_random: False
 
 # optimizer
 optimizer: SGD
-scheduler: ConstantLR
+# optimizer: Adam
+# scheduler: ConstantLR
+scheduler: OneCycleLR
 
 # training
 batch_size: 40
