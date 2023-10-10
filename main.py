@@ -112,6 +112,7 @@ def main():
         batch_tfms=transformers,
         device=device,
         sample_scale=p.sample_scale,
+        verbose=p.verbose,
     )
 
     # Part 6. Save weights
