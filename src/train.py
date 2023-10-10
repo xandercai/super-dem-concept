@@ -55,7 +55,7 @@ def train_loop(
             accum_loss += step_loss
             if verbose:
                 print(
-                    f"\tEpoch: {epoch+1}\tStep: {i+1:02d}\tLR: {lr:7.5f}\tLoss: {step_loss:7.5f}\t"
+                    f"\tEpoch: {epoch+1:02d}\tStep: {i+1:02d}\tLR: {lr:7.5f}\tLoss: {step_loss:7.5f}\t"
                     f"Time: {datetime.now() - step_start}"
                 )
 
