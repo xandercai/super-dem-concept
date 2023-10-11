@@ -11,7 +11,7 @@ from src.plot import plot_batch
 from src.train import train_loop
 from src.utils import create_config
 from src.optim import get_scheduler, get_optimizer
-from utils import Logger
+from src.utils import Logger
 import sys
 import os
 import argparse
