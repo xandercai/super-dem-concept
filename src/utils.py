@@ -1,12 +1,8 @@
 import os
 import yaml
-from dotenv import load_dotenv
 from easydict import EasyDict as edict
 import json
 
-# Load the stored environment variables
-load_dotenv()
-#
 # Authors: Simon Vandenhende
 # Licensed under the CC BY-NC 4.0 license (https://creativecommons.org/licenses/by-nc/4.0/)
 
