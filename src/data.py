@@ -105,16 +105,19 @@ class NanCleaner(torch.nn.Module):
         if nan_arr.any():
             if self.verbose:
                 nan_idx = np.where(nan_arr.cpu().numpy())
-                print(f"\tGot nan at: batch {nan_idx[0]}, channel {nan_idx[1]}")
-                nan_im = (
-                    inputs[nan_idx[0], nan_idx[1], :]
-                    .view(*spatial_size)
-                    .cpu()
-                    .numpy()
-                    .T
-                )
-                plt.imshow(nan_im, cmap="terrain")
-                plt.show()
+                for i in range(len(nan_idx[0])):
+                    print(
+                        f"\t\tGot nan at: batch {nan_idx[0][i]}, channel {nan_idx[1][i]}"
+                    )
+                    nan_im = (
+                        inputs[nan_idx[0][i], nan_idx[1][i], :]
+                        .view(*spatial_size)
+                        .cpu()
+                        .numpy()
+                        .T
+                    )
+                    plt.imshow(nan_im, cmap="terrain")
+                    plt.show()
             inputs = torch.nan_to_num(inputs)
         inputs = inputs.view(shape)
         return inputs

@@ -19,9 +19,12 @@ def train_loop(
     batch_tfms: Optional[Callable] = None,
     device: Optional[str] = "cuda",
     sample_scale: int = 1,
+    parallel: bool = False,
     verbose: bool = False,
 ) -> List[float]:
     acc = []
+    if parallel:
+        model = torch.nn.DataParallel(model)
     model.to(device)
     print(
         f"Epoch: {0:02d}\tLR: {scheduler.get_last_lr()[0]:7.5f}\tLoss: {0:7.5f}\t"

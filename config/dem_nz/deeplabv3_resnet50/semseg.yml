@@ -1,6 +1,7 @@
 # general
 result_dir: ./result
 verbose: True
+parallel: False
 
 # task
 tasks:
