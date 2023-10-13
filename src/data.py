@@ -12,12 +12,7 @@ from typing import Union
 import numpy as np
 from matplotlib import pyplot as plt
 
-image_crs = CRS.from_epsg(32759)
-dem_lr_crs = CRS.from_epsg(4326)
-canopy_crs = CRS.from_epsg(4326)
-building_crs = CRS.from_epsg(32759)
-dem_hr_crs = CRS.from_epsg(2193)
-mask_crs = CRS.from_epsg(32759)
+global_crs = CRS.from_epsg(32759)
 
 
 def scale_image(item: dict):
@@ -25,7 +20,12 @@ def scale_image(item: dict):
     return item
 
 
-def calc_statistics(dset: RasterDataset):
+def calc_statistics(
+    dset: RasterDataset,
+    is_image: bool = False,
+    has_nan: bool = False,
+    unique: bool = False,
+):
     """
     Calculate the statistics (mean and std) for the entire dataset
     Warning: This is an approximation. The correct value should take into account the
@@ -44,9 +44,18 @@ def calc_statistics(dset: RasterDataset):
     accum_std = 0
 
     for file in files:
-        img = rio.open(file).read() / 10000  # type: ignore
-        accum_mean += img.reshape((img.shape[0], -1)).mean(axis=1)
-        accum_std += img.reshape((img.shape[0], -1)).std(axis=1)
+        if is_image:
+            arr = rio.open(file).read() / 10_000
+        else:
+            arr = rio.open(file).read()
+        if has_nan:
+            arr = np.nan_to_num(arr, nan=0)
+        if unique:
+            print(file)
+            print(np.unique(arr))
+            print(np.where(arr == 0))
+        accum_mean += arr.reshape((arr.shape[0], -1)).mean(axis=1)
+        accum_std += arr.reshape((arr.shape[0], -1)).std(axis=1)
 
     # at the end, we shall have 2 vectors with lenght n=chnls
     # we will average them considering the number of images
@@ -187,35 +196,35 @@ def get_dataset(split: str, p: edict):
         for dataset_name in dataset_name_list:
             if len(p.tasks) == 1 and p.tasks[0] == "semseg":
                 image_set = Planet(
-                    root=dataset_path_dict[dataset_name].image,
-                    crs=image_crs,
+                    paths=dataset_path_dict[dataset_name].image,
+                    crs=global_crs,
                     res=p.resolution,
                     bands=["red", "green", "blue"] if p.rgb_only else None,
                     transforms=scale_image,
                 )
                 dem_lr_set = RasterDataset(
-                    root=dataset_path_dict[dataset_name].dem_lr,
-                    crs=dem_lr_crs,
+                    paths=dataset_path_dict[dataset_name].dem_lr,
+                    crs=global_crs,
                     res=p.resolution,
                 )
                 canopy_set = RasterDataset(
-                    root=dataset_path_dict[dataset_name].canopy,
-                    crs=canopy_crs,
+                    paths=dataset_path_dict[dataset_name].canopy,
+                    crs=global_crs,
                     res=p.resolution,
                 )
                 building_set = RasterDataset(
-                    root=dataset_path_dict[dataset_name].building,
-                    crs=building_crs,
+                    paths=dataset_path_dict[dataset_name].building,
+                    crs=global_crs,
                     res=p.resolution,
                 )
                 # dem_hr_set = RasterDataset(
-                #     root=dataset_path_dict[dataset_name].dem_hr,
+                #     paths=dataset_path_dict[dataset_name].dem_hr,
                 #     crs=dem_hr_crs,
                 #     res=p.resolution,
                 # )
                 mask_set = RasterDataset(
-                    root=dataset_path_dict[dataset_name].mask,
-                    crs=mask_crs,
+                    paths=dataset_path_dict[dataset_name].mask,
+                    crs=global_crs,
                     res=p.resolution,
                 )
 
@@ -266,13 +275,62 @@ def get_dataloader(dataset: RasterDataset, p: edict):
     return dataloader
 
 
+def get_statistics(root, p):
+    image_set = Planet(
+        paths=(Path(root) / Path("image")).as_posix(),
+        crs=global_crs,
+        res=p.resolution,
+    )
+    # [0.02125753 0.0357015  0.04440632 0.05297579 0.05467798 0.05113702 0.09292307 0.24820472] [0.01749222 0.02163442 0.02477142 0.02770515 0.0315022  0.03341371 0.04396875 0.11720941]
+    mean, std = calc_statistics(image_set, is_image=True)
+    print("image stat", mean, std)
+
+    dem_lr_set = RasterDataset(
+        paths=(Path(root) / Path("dem_lr")).as_posix(),
+        crs=global_crs,
+        res=p.resolution,
+    )
+    # [420.23532] [267.00613]
+    mean, std = calc_statistics(dem_lr_set, has_nan=True)
+    print("cop30 stat", mean, std)
+
+    canopy_set = RasterDataset(
+        paths=(Path(root) / Path("canopy")).as_posix(),
+        crs=global_crs,
+        res=p.resolution,
+    )
+    # [4.96576484] [5.874813]
+    mean, std = calc_statistics(canopy_set)
+    print("canopy stat", mean, std)
+
+    building_set = RasterDataset(
+        paths=(Path(root) / Path("building")).as_posix(),
+        crs=global_crs,
+        res=p.resolution,
+    )
+    # [1.00909591] [0.05473682]
+    mean, std = calc_statistics(building_set)
+    print("building stat", mean, std)
+
+    mask_set = RasterDataset(
+        paths=(Path(root) / Path("mask")).as_posix(),
+        crs=global_crs,
+        res=p.resolution,
+    )
+    # [6.4514706] [3.22235]
+    mean, std = calc_statistics(mask_set, unique=True)
+    print("building stat", mean, std)
+
+
 if __name__ == "__main__":
     import utils
     from src.plot import plot_batch
 
     p = utils.create_config("./config/dem_nz/deeplabv3_resnet50/semseg.yml")
-    dataset = get_dataset("train", p)
-    dataloader = get_dataloader(dataset, p)
-    batch = next(iter(dataloader))
-    print("verify a batch", batch.keys(), batch["image"].shape, batch["mask"].shape)
-    plot_batch(batch.copy(), bright=5, chnls=[0, 1, 2])
+    # dataset = get_dataset("train", p)
+    # dataloader = get_dataloader(dataset, p)
+    # batch = next(iter(dataloader))
+    # print("verify a batch", batch.keys(), batch["image"].shape, batch["mask"].shape)
+    # plot_batch(batch.copy(), bright=5, chnls=[0, 1, 2])
+    root = r"../datasets/dem_nz_stat"
+    get_statistics(root, p)
