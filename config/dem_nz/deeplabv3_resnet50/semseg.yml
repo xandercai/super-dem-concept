@@ -6,25 +6,25 @@ parallel: False
 # task
 tasks:
   - semseg
-num_classes: 12
+num_classes: 10
 
 # dataset
 dataset_dir: ../datasets/DEM_NZ
 rgb_only: True
 mean:
-  - 0.02771085
-  - 0.03105706
-  - 0.021761
-  - 311.7378
-  - 46.2164077
-  - 0.62586078
+  - 0.0357015
+  - 0.05297579
+  - 0.05113702
+  - 420.23532
+  - 4.96576484
+  - 1.00909591
 std:
-  - 0.03461628
-  - 0.03408366
-  - 0.02552561
-  - 314.13437
-  - 47.73058678
-  - 0.48741311
+  - 0.02163442
+  - 0.02770515
+  - 0.03341371
+  - 267.00613
+  - 5.874813
+  - 0.05473682
 
 # split
 train_set_name:
@@ -36,7 +36,7 @@ test_set_name:
 # resample info
 resolution: 7.5
 sample_size: 300
-sample_scale: 200
+sample_scale: 10
 
 # model
 model_name: deeplabv3_resnet50
@@ -45,10 +45,10 @@ init_random: False
 # optimizer
 optimizer: SGD
 # optimizer: Adam
-# scheduler: ConstantLR
-scheduler: OneCycleLR
+scheduler: ConstantLR
+# scheduler: OneCycleLR
 
 # training
 batch_size: 40
 epochs: 10
-lr: 0.1
+lr: 0.01
